@@ -267,7 +267,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         delivery: {
@@ -275,7 +275,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         dispatcher: {
@@ -283,7 +283,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         driver: {
@@ -291,7 +291,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get drivers
-                return _.find(drivers, { id: args.id });
+                //return _.find(drivers, { id: args.id });
             }
         },
         drivertask: {
@@ -299,7 +299,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         gotohub: {
@@ -307,7 +307,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         inventoryexchangecontract: {
@@ -315,7 +315,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         inventoryexchangetask: {
@@ -323,7 +323,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         message: {
@@ -331,7 +331,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         messageuser: {
@@ -339,7 +339,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         order: {
@@ -347,7 +347,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         ordertask: {
@@ -355,7 +355,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         product: {
@@ -363,7 +363,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         profile: {
@@ -371,7 +371,7 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         user: {
@@ -379,97 +379,97 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
-                return _.find(deliveries, { id: args.id });
+                //return _.find(deliveries, { id: args.id });
             }
         },
         customers: {
             type: new GraphQLList(CustomerType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         deliveries: {
             type: new GraphQLList(DeliveryType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         dispatchers: {
             type: new GraphQLList(DispatcherType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         drivers: {
             type: new GraphQLList(DriverType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         drivertasks: {
             type: new GraphQLList(DriverTaskType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         gotohubtasks: {
             type: new GraphQLList(GoToHubTaskType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         inventoryexchangecontracts: {
             type: new GraphQLList(InventoryExchangeContractType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         inventoryexchanges: {
             type: new GraphQLList(InventoryExchangeTaskType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         messages: {
             type: new GraphQLList(MessageType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         messageusers: {
             type: new GraphQLList(MessageUserType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         orders: {
             type: new GraphQLList(OrderType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         ordertask: {
             type: new GraphQLList(OrderTaskType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         products: {
             type: new GraphQLList(ProductType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         profiles: {
             type: new GraphQLList(ProfileType),
             resolve(parent, args) {
-                return drivers
+                //return drivers
             }
         },
         users: {
             type: new GraphQLList(UserType),
             resolve(parent, args) {
-                return deliveries
+                //return deliveries
             }
         }
     }
