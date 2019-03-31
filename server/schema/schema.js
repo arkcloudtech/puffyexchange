@@ -10,14 +10,10 @@ const DriverTask = require('../models/drivertask');
 const InventoryExchangeTask = require('../models/inventoryexchangetask');
 const GoToHubTask = require('../models/gotohubtask');
 const OrderTask = require('../models/ordertask');
-const location = require('../models/location');
-const Coordinate = require('../models/coordinate');
 const Product = require('../models/product');
 const Order = require('../models/order');
 const Customer = require('../models/customer');
 const Message = require('../models/message');
-const MessageUser = require('../models/messageuser');
-const PAC = require('../models/pac');
 const InventoryExchangeContract = require('../models/inventoryexchangecontract');
 const MessageUser = require('../models/messageuser');
 const Profile = require('../models/profile');
@@ -38,6 +34,21 @@ var drivers = [
     { id: "4", name: "driver 4 name", location: "33.88321 -117.00399", deliveryId: "2" }
 ];
 
+const CustomerType = new GraphQLObjectType({
+    name: 'Customer',
+    fields: () => ({
+        id: { type: GraphQLID },
+        order: { type: GraphQLString },
+        dispatcher: { type: GraphQLString },
+        driver: {
+            type: DriverType,
+            resolve(parent, args) {
+                return _.find(drivers, { id: parent.driverId });
+            }
+        }
+    })
+});
+
 const DeliveryType = new GraphQLObjectType({
     name: 'Delivery',
     fields: () => ({
@@ -53,8 +64,188 @@ const DeliveryType = new GraphQLObjectType({
     })
 });
 
+const DispatcherType = new GraphQLObjectType({
+    name: 'Dispatcher',
+    fields: () => ({
+        id: { type: GraphQLID },
+        order: { type: GraphQLString },
+        dispatcher: { type: GraphQLString },
+        driver: {
+            type: DriverType,
+            resolve(parent, args) {
+                return _.find(drivers, { id: parent.driverId });
+            }
+        }
+    })
+});
+
 const DriverType = new GraphQLObjectType({
     name: 'Driver',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const DriverTaskType = new GraphQLObjectType({
+    name: 'DriverTask',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const GoToHubType = new GraphQLObjectType({
+    name: 'GoToHub',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const InventoryExchangeContractType = new GraphQLObjectType({
+    name: 'InventoryExchangeContract',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const InventoryExchangeType = new GraphQLObjectType({
+    name: 'InventoryExchange',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const MessageType = new GraphQLObjectType({
+    name: 'Message',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const MessageUserType = new GraphQLObjectType({
+    name: 'MessageUser',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const OrderType = new GraphQLObjectType({
+    name: 'Order',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const OrderTaskType = new GraphQLObjectType({
+    name: 'OrderTask',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const ProductType = new GraphQLObjectType({
+    name: 'Product',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const ProfileType = new GraphQLObjectType({
+    name: 'Profile',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        location: { type: GraphQLString },
+        deliveries: {
+            type: new GraphQLList(DeliveryType),
+            resolve(parent, args) {
+                return _.filter(deliveries, { driverId: parent.id })
+            }
+        },
+    })
+});
+
+const UserType = new GraphQLObjectType({
+    name: 'User',
     fields: () => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },

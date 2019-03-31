@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const productSchema = new Schema({
     name: String,
-    location: String,
-    deliveryId: String,
-    profioleId: String
+    description: String,
+    price: Number,
+    imageUrl: String
 });
 
 module.exports = mongoose.model("Product", productSchema);

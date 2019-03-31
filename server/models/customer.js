@@ -3,9 +3,8 @@ const Schema = mongoose.Schema;
 
 const customerSchema = new Schema({
     name: String,
-    location: String,
-    deliveryId: String,
-    profioleId: String
+    phone: String,
+    idUrl: String
 });
 
 module.exports = mongoose.model("Customer", customerSchema);
