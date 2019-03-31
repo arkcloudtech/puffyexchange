@@ -1,5 +1,15 @@
 const graphql = require('graphql');
-const { GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLID, GraphQLFloat, GraphQLInt, GraphQLList, GraphQLNonNull } = graphql;
+const { 
+    GraphQLObjectType, 
+    GraphQLString,
+    GraphQLBoolean, 
+    GraphQLSchema, 
+    GraphQLID,
+    GraphQLFloat, 
+    GraphQLInt, 
+    GraphQLList, 
+    GraphQLNonNull 
+} = graphql;
 const _ = require('lodash');
 
 // bring in models
@@ -38,12 +48,13 @@ const CustomerType = new GraphQLObjectType({
     name: 'Customer',
     fields: () => ({
         id: { type: GraphQLID },
-        order: { type: GraphQLString },
-        dispatcher: { type: GraphQLString },
-        driver: {
-            type: DriverType,
+        name: { type: GraphQLString },
+        phone: { type: GraphQLString },
+        idUrl: { type: GraphQLString },
+        user: {
+            type: UserType,
             resolve(parent, args) {
-                return _.find(drivers, { id: parent.driverId });
+                return User.findById(parent.userId);
             }
         }
     })
@@ -53,14 +64,26 @@ const DeliveryType = new GraphQLObjectType({
     name: 'Delivery',
     fields: () => ({
         id: { type: GraphQLID },
-        order: { type: GraphQLString },
-        dispatcher: { type: GraphQLString },
+        summary: { type: GraphQLString },
+        order: {
+            type: OrderType,
+            resolve(parent, args) {
+                return Order.findById(parent.orderId);
+            }
+        },
+        deliveryLocation: { type: GraphQLString },
+        dispatcher: {
+            type: DispatcherType,
+            resolve(parent, args){
+                return Dispatcher.findById(parent.dispatcherId)
+            }
+        },
         driver: {
             type: DriverType,
-            resolve(parent, args) {
-                return _.find(drivers, { id: parent.driverId });
+            resolve(parent, args){
+                return Driver.findById(parent.driverId)
             }
-        }
+        },
     })
 });
 
@@ -68,12 +91,18 @@ const DispatcherType = new GraphQLObjectType({
     name: 'Dispatcher',
     fields: () => ({
         id: { type: GraphQLID },
-        order: { type: GraphQLString },
+        orders: { type: GraphQLString },
+        drivers: { 
+            type: new GraphQLList(DriverType), 
+            resolve(parent, args){
+                return Driver.find({ authorId: parent.id });
+            }
+        },
         dispatcher: { type: GraphQLString },
-        driver: {
-            type: DriverType,
+        user: {
+            type: UserType,
             resolve(parent, args) {
-                return _.find(drivers, { id: parent.driverId });
+                return User.findById(parent.userId);
             }
         }
     })
@@ -248,7 +277,12 @@ const UserType = new GraphQLObjectType({
     name: 'User',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
+        name: { 
+            type: GraphQLString,
+            resolve(parent, args) {
+                return User.findById(parent.authorId).name;
+            }
+        },
         location: { type: GraphQLString },
         deliveries: {
             type: new GraphQLList(DeliveryType),
@@ -376,7 +410,11 @@ const RootQuery = new GraphQLObjectType({
         },
         user: {
             type: UserType,
-            args: { id: { type: GraphQLID } },
+            args: { 
+                id: { type: GraphQLID },
+                phone: { type: GraphQLString },
+                isActive: { type: GraphQLBoolean}
+            },
             resolve(parent, args) {
                 // code to get deliveries
                 //return _.find(deliveries, { id: args.id });

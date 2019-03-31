@@ -24,33 +24,33 @@ const config = {
 }
 
 var SystemMessages = {
-        Smooth: [ 
-            { from: "puffy-sys", to: "order", body: "Delivery In Route" },
-            { from: "puffy-sys", to: "order", body: "Delivery Arrived" },
-            { from: "puffy-sys", to: "order", body: "Delivery Complete" }
-        ],
-        Bumpy: [
-            { from: "puffy-sys", to: "order", body: "Delivery In Route" },
-            { from: "driver", to: "dipatch", body: "Yo I can't find the address" },
-            { from: "dispatch", to: "driver", body: "It's 1243 Sprinkles Way, not 1234" },
-            { from: "driver", to: "dispatch", body: "Oh, my bad, I'm not far out" },
-            { from: "puffy-sys", to: "order", body: "Delivery Arrived"  },
-            { from: "puffy-sys", to: "order", body: "Delivery Complete" }
-        ],
-        Rough: [
-            { from: "puffy-sys", to: "order", body: "Delivery In Route" },
-            { from: "driver", to: "dipatch", body: "I arrived but I don't think this is the house, I'm at 12345 Euclid in Upland" },
-            { from: "dispatch", to: "driver", body: "Oh No, it's 12345 Euclid in Anaheim" },
-            { from: "driver", to: "dispatch", body: "What, I'm hours away in traffic" },
-            { from: "customer", to: "customer service", body: "Where's my stuff at I ordered it forever ago" },
-            { from: "customer service", to: "customer", body: "The driver is delayed, he'll be a few more hours" },
-            { from: "customer", to: "customer service", body: "Just Cancel the order" },
-            { from: "puffy-sys", to: "order", body: "Delivery Canceled" },
-            { from: "customer service", to: "customer", body: "We canceled it, sorry for the inconvenience" },
-            { from: "dispatcher", to: "driver", body: "That order was cancelled by customer service, sending you a new route" },
-            { from: "driver", to: "dispatcher", body: "$#%#$" },
-        ]
-    };
+    Smooth: [ 
+        { from: "puffy-sys", to: "order", body: "Delivery In Route" },
+        { from: "puffy-sys", to: "order", body: "Delivery Arrived" },
+        { from: "puffy-sys", to: "order", body: "Delivery Complete" }
+    ],
+    Bumpy: [
+        { from: "puffy-sys", to: "order", body: "Delivery In Route" },
+        { from: "driver", to: "dipatch", body: "Yo I can't find the address" },
+        { from: "dispatch", to: "driver", body: "It's 1243 Sprinkles Way, not 1234" },
+        { from: "driver", to: "dispatch", body: "Oh, my bad, I'm not far out" },
+        { from: "puffy-sys", to: "order", body: "Delivery Arrived"  },
+        { from: "puffy-sys", to: "order", body: "Delivery Complete" }
+    ],
+    Rough: [
+        { from: "puffy-sys", to: "order", body: "Delivery In Route" },
+        { from: "driver", to: "dipatch", body: "I arrived but I don't think this is the house, I'm at 12345 Euclid in Upland" },
+        { from: "dispatch", to: "driver", body: "Oh No, it's 12345 Euclid in Anaheim" },
+        { from: "driver", to: "dispatch", body: "What, I'm hours away in traffic" },
+        { from: "customer", to: "customer service", body: "Where's my stuff at I ordered it forever ago" },
+        { from: "customer service", to: "customer", body: "The driver is delayed, he'll be a few more hours" },
+        { from: "customer", to: "customer service", body: "Just Cancel the order" },
+        { from: "puffy-sys", to: "order", body: "Delivery Canceled" },
+        { from: "customer service", to: "customer", body: "We canceled it, sorry for the inconvenience" },
+        { from: "dispatcher", to: "driver", body: "That order was cancelled by customer service, sending you a new route" },
+        { from: "driver", to: "dispatcher", body: "$#%#$" },
+    ]
+};
 
 var UserType = {};
 
@@ -61,18 +61,7 @@ UserType.CustomerService = 3;
 UserType.Supplier = 4;
 
 var Profiles = {};
-Profiles.Driver = {
-
-    type:
-        UserType.Driver,
-
-    isApproved:
-        true,
-
-};
-
-
-
+Profiles.Driver = { type:  UserType.Driver, isApproved: true};
 Profiles.Dispatcher = { type: UserType.Dispatcher };
 Profiles.Customer = { type: UserType.Customer };
 Profiles.CustomerService = { type: UserType.CustomerService };
@@ -198,11 +187,8 @@ function getProductName() {
         'ranch',
         'island'
     ];
-
     return `${adj[rndBet(0, adj.length - 1)]} ${prod[rndBet(0, prod.length - 1)]} from ${adj[rndBet(0, adj.length - 1)]} ${disp[rndBet(0, disp.length - 1)]}`;
 }
-
-
 
 function getName() {
     var fNames = [
@@ -234,15 +220,25 @@ function getName() {
         'Riley',
         'Thomson'
     ];
-
-    return `${fNames[rndBet(0, fNames.length - 1)]}
-${lNames[rndBet(0, lNames.length - 1)]}`;
-
+    return `${fNames[rndBet(0, fNames.length - 1)]} ${lNames[rndBet(0, lNames.length - 1)]}`;
 };
 
-function
-    getAddress() {
-
+function getAddress() {
+    var Directionals =  [
+        '',
+        'North',
+        'South',
+        'East',
+        'West',
+        'NE',
+        'NW',
+        'SE',
+        'SW',
+        '',
+        '',
+        '',
+        ''
+    ];
     var Streets = [
         'Tustin',
         'Euclid',
@@ -252,7 +248,6 @@ function
         '4th',
         '5th'
     ];
-
     var Cities = [
         'Irvine',
         'Orange',
@@ -265,8 +260,15 @@ function
         'Long Beach',
         'Compton'
     ];
-
-    return `${rndBet(1000, 5000)} ${Streets[rndBet(0, Streets.length - 1)]} st, ${Cities[rndBet(1, Cities.length - 1)]}, CA ${rndBet(90000, 93000)}`;
+    var Types = [
+        'st',
+        'road',
+        'drive',
+        'pkwy',
+        'alley',
+        'blvd'
+    ];
+    return `${rndBet(1000, 5000)} ${Directionals[rndBet(0, Directionals.length - 1)]} ${Streets[rndBet(0, Streets.length - 1)]} ${Types[rndBet(0, Types.length - 1)]}, ${Cities[rndBet(1, Cities.length - 1)]}, CA ${rndBet(90000, 93000)}`;
 };
 
 function
@@ -282,9 +284,6 @@ function buildLocations() { };
 function buildDispatchers() { };
 function buildSuppliers() { };
 function buildMessages() { };
-
-
-
 
 
 // js helper functions
