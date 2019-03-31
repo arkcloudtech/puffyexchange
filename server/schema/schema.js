@@ -109,8 +109,8 @@ const DriverTaskType = new GraphQLObjectType({
     })
 });
 
-const GoToHubType = new GraphQLObjectType({
-    name: 'GoToHub',
+const GoToHubTaskType = new GraphQLObjectType({
+    name: 'GoToHubTask',
     fields: () => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
@@ -139,7 +139,7 @@ const InventoryExchangeContractType = new GraphQLObjectType({
     })
 });
 
-const InventoryExchangeType = new GraphQLObjectType({
+const InventoryExchangeTaskType = new GraphQLObjectType({
     name: 'InventoryExchange',
     fields: () => ({
         id: { type: GraphQLID },
@@ -262,8 +262,24 @@ const UserType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
+        customer: {
+            type: CustomerType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
         delivery: {
             type: DeliveryType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        dispatcher: {
+            type: DispatcherType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
@@ -278,16 +294,182 @@ const RootQuery = new GraphQLObjectType({
                 return _.find(drivers, { id: args.id });
             }
         },
+        drivertask: {
+            type: DriverTaskType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        gotohub: {
+            type: GoToHubTaskType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        inventoryexchangecontract: {
+            type: InventoryExchangeContractType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        inventoryexchangetask: {
+            type: InventoryExchangeTask,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        message: {
+            type: MessageType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        messageuser: {
+            type: MessageUserType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        order: {
+            type: OrderType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        ordertask: {
+            type: OrderTaskType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        product: {
+            type: ProductType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        profile: {
+            type: ProfileType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        user: {
+            type: UserType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                // code to get deliveries
+                return _.find(deliveries, { id: args.id });
+            }
+        },
+        customers: {
+            type: new GraphQLList(CustomerType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
         deliveries: {
             type: new GraphQLList(DeliveryType),
             resolve(parent, args) {
-                return deliveries
+                return drivers
+            }
+        },
+        dispatchers: {
+            type: new GraphQLList(DispatcherType),
+            resolve(parent, args) {
+                return drivers
             }
         },
         drivers: {
             type: new GraphQLList(DriverType),
             resolve(parent, args) {
                 return drivers
+            }
+        },
+        drivertasks: {
+            type: new GraphQLList(DriverTaskType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        gotohubtasks: {
+            type: new GraphQLList(GoToHubTaskType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        inventoryexchangecontracts: {
+            type: new GraphQLList(InventoryExchangeContractType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        inventoryexchanges: {
+            type: new GraphQLList(InventoryExchangeTaskType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        messages: {
+            type: new GraphQLList(MessageType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        messageusers: {
+            type: new GraphQLList(MessageUserType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        orders: {
+            type: new GraphQLList(OrderType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        ordertask: {
+            type: new GraphQLList(OrderTaskType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        products: {
+            type: new GraphQLList(ProductType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        profiles: {
+            type: new GraphQLList(ProfileType),
+            resolve(parent, args) {
+                return drivers
+            }
+        },
+        users: {
+            type: new GraphQLList(UserType),
+            resolve(parent, args) {
+                return deliveries
             }
         }
     }
