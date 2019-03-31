@@ -9,4 +9,4 @@ const deliverySchema = new Schema({
     driverId: String
 });
 
-module.exports = mongoose.model("Delivery", deliverySchema);
+module.exports = mongoose.model("Delivery", deliverySchema); 

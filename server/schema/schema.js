@@ -1,8 +1,26 @@
 const graphql = require('graphql');
 const { GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLID, GraphQLFloat, GraphQLInt, GraphQLList, GraphQLNonNull } = graphql;
 const _ = require('lodash');
-const Delivery = require('../models/delivery');
+
+// bring in models
+const User = require('../models/user');
 const Driver = require('../models/driver');
+const Dispatcher = require('../models/dispatcher');
+const DriverTask = require('../models/drivertask');
+const InventoryExchangeTask = require('../models/inventoryexchangetask');
+const GoToHubTask = require('../models/gotohubtask');
+const OrderTask = require('../models/ordertask');
+const location = require('../models/location');
+const Coordinate = require('../models/coordinate');
+const Product = require('../models/product');
+const Order = require('../models/order');
+const Customer = require('../models/customer');
+const Message = require('../models/message');
+const MessageUser = require('../models/messageuser');
+const PAC = require('../models/pac');
+const InventoryExchangeContract = require('../models/inventoryexchangecontract');
+const MessageUser = require('../models/messageuser');
+const Profile = require('../models/profile');
 
 // dummy data
 var deliveries = [
