@@ -1,3 +1,31 @@
+// this config sets the stage for the whole simulated operation
+const config = {
+    DispatcherCount: { min: 2, max: 5 },
+    DriverCount: { min: 10, max: 35 },
+    ProductTypesPerDriver: { min: 2, max: 20 },
+    ProductCountsPerType: { min: 5, max: 100 },
+    MessagesPerOrder: { min: 3, max: 7 },
+    DeliveryOrderCustomers: { min: 50, max: 200 },
+    HubCount: { min: 3, max: 20 }
+}
+
+// bring in models
+const User = require('../models/user');
+const Driver = require('../models/driver');
+const Dispatcher = require('../models/dispatcher');
+const DriverTask = require('../models/drivertask');
+const InventoryExchangeTask = require('../models/inventoryexchangetask');
+const GoToHubTask = require('../models/gotohubtask');
+const OrderTask = require('../models/ordertask');
+const Product = require('../models/product');
+const Order = require('../models/order');
+const OrderProduct = require('../models/orderProducts');
+const Customer = require('../models/customer');
+const Message = require('../models/message');
+const InventoryExchangeContract = require('../models/inventoryexchangecontract');
+const MessageUser = require('../models/messageuser');
+const Profile = require('../models/profile');
+
 // mock data for puffy GraphAPI Endpoint
 function buildPuffyWorld() {
     return buildDeliveries(
@@ -10,17 +38,6 @@ function buildPuffyWorld() {
             messages: buildMessages()
         }
     );
-}
-
-// this config sets the stage for the whole simulated operation
-const config = {
-    DispatcherCount: { min: 2, max: 5 },
-    DriverCount: { min: 10, max: 35 },
-    ProductTypesPerDriver: { min: 2, max: 20 },
-    ProductCountsPerType: { min: 5, max: 100 },
-    MessagesPerOrder: { min: 3, max: 7 },
-    DeliveryOrderCustomers: { min: 50, max: 200 },
-    HubCount: { min: 3, max: 20 }
 }
 
 var SystemMessages = {
@@ -106,7 +123,6 @@ function buildDrivers() {
         drivers.push({
             isApproved: getRandomBool(),
             user: {
-                pot: uuid(),
                 name: name,
                 email: `${name.replace(' ', '.')}@puffydelivery.com`
             }
@@ -123,9 +139,7 @@ function buildOrders() {
         orders.push(
             {
                 customer: {
-                    pot: uuid(),
                     user: {
-                        pot: uuid(),
                         name: name,
                         email: `${name.replace(' ', '.')}@customerseamail.com`
                     },
@@ -319,6 +333,50 @@ function getRandomBool() {
     return Math.random() >= 0.5;
 }
 
+function getRandomPhone(){
+    return `${rndBet(600, 999)}-${rndBet(500, 999)}-${rndBet(5000, 9999)}`
+}
+
+const mongoose = require('mongoose');
+const mPwd = 'password\$1';
+// connect to the database ... Note: mongo lab connect from 76.169.144.200 only 
+mongoose.connect('mongodb+srv://arkcloudtech:' + mPwd + '@arkcloud0-vujht.mongodb.net/test?retryWrites=true', { useNewUrlParser: true });
+mongoose.connection.once('open', () => {
+    console.log('connected to database, preparing to seed with data...');
+    // seed data
+    drivers = buildDrivers();
+    orders = buildOrders();
+    console.dir({
+        drivers: drivers,
+        orders: orders
+    });
+
+    console.log('seeding users and drivers');
+    for(var i = 0, dl = drivers.length; i < dl; i++){
+        let user = new User({
+            name: drivers[i].user.name,
+            email: drivers[i].user.email,
+            phone: getRandomPhone()
+        });
+        user.save((err, item, numAffected)=>{
+            if(!err) {
+                let driver = new Driver({
+                    userId: item.id,
+                    isApproved: true //drivers[i].isApproved
+                });
+                driver.save((e, i, n)=>{
+                    if(e){
+                        console.log('issue adding driver');
+                    }
+                });
+            } else {
+                console.log('issues adding user')
+            }
+        });
+    }
+});
+
+/*
 module.exports = {
     PuffyWorld: {
         deliveries: buildPuffyWorld(),
@@ -326,3 +384,4 @@ module.exports = {
         UserType: UserType
     }
 }
+*/

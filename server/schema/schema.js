@@ -13,6 +13,8 @@ const {
 } = graphql;
 const _ = require('lodash');
 
+
+
 // bring in models
 const User = require('../models/user');
 const Driver = require('../models/driver');
@@ -340,6 +342,7 @@ const UserType = new GraphQLObjectType({
     fields: () => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
+        email: { type: GraphQLString },
         phone: { type: GraphQLString },
         isActive: { type: GraphQLBoolean }
     })
