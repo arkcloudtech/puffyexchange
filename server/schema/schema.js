@@ -171,6 +171,7 @@ const DriverType = new GraphQLObjectType({
                 return _.filter(deliveries, { driverId: parent.id })
             }
         },
+        isApproved: { type: GraphQLBoolean }
     })
 });
 
@@ -476,7 +477,13 @@ const RootQuery = new GraphQLObjectType({
         },
         drivers: {
             type: new GraphQLList(DriverType),
+            args: {
+                isApproved: { type: GraphQLBoolean }
+            },
             resolve(parent, args) {
+                if(args.isApproved){
+                    return Driver.find({ isApproved: args.isApproved }); 
+                }
                 return Driver.find({});
             }
         },
@@ -768,7 +775,278 @@ const Mutation = new GraphQLObjectType({
                 });
                 return delivery.save();
             }
-        },/*
+        },
+        removeCustomer: {
+            type: CustomerType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Customer.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeDelivery: {
+            type: DeliveryType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Delivery.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeDispatcher: {
+            type: DispatcherType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Dispatcher.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeDriver: {
+            type: DriverType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Driver.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeDriverTask: {
+            type: DriverTaskType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        DriverTask.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeGoToHubTask: {
+            type: GoToHubTaskType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        GoToHubTask.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeInventoryExchangeContract: {
+            type: InventoryExchangeContractType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        InventoryExchangeContract.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeInventoryExchangeTask: {
+            type: InventoryExchangeTaskType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        InventoryExchangeTask.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeMessage: {
+            type: MessageType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Message.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeMessageUser: {
+            type: MessageUserType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        MessageUser.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeOrder: {
+            type: OrderType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Order.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeOrderTask: {
+            type: OrderTaskType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        OrderTask.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeProduct: {
+            type: ProductType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Product.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeProfile: {
+            type: ProfileType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Profile.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        removeUser: {
+            type: UserType,
+            args: {
+		        id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        User.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateCustomer: {
+            type: CustomerType,
+            args: {
+				id: { type: GraphQLString }
+            },		
+            resolve(parent, args) {
+		        Customer.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateDelivery: {
+            type: DeliveryType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Delivery.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateDispatcher: {
+            type: DispatcherType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Dispatcher.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateDriver: {
+            type: DriverType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Driver.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateDriverTask: {
+            type: DriverTaskType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        DriverTask.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateGoToHubTask: {
+            type: GoToHubTaskType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        GoToHubTask.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateInventoryExchangeContract: {
+            type: InventoryExchangeContractType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        InventoryExchangeContract.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateInventoryExchangeTask: {
+            type: InventoryExchangeTaskType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        InventoryExchangeTask.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateMessage: {
+            type: MessageType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Message.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateMessageUser: {
+            type: MessageUserType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        MessageUser.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateOrder: {
+            type: OrderType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Order.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateOrderTask: {
+            type: OrderTaskType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        OrderTask.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateProduct: {
+            type: ProductType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Product.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateProfile: {
+            type: ProfileType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        Profile.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        updateUser: {
+            type: UserType,
+            args: {
+				id: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+		        User.findByIdAndRemove(args.id, (err, todo) => {});
+            }
+        },
+        /*
         signInventoryExchangeContract:  {
             type: InventoryExchangeContractType,
             args: {

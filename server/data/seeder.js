@@ -358,11 +358,13 @@ mongoose.connection.once('open', () => {
             email: drivers[i].user.email,
             phone: getRandomPhone()
         });
+        var j = i;
         user.save((err, item, numAffected)=>{
+            var k = j;
             if(!err) {
                 let driver = new Driver({
                     userId: item.id,
-                    isApproved: true //drivers[i].isApproved
+                    isApproved: drivers[k].isApproved
                 });
                 driver.save((e, i, n)=>{
                     if(e){
