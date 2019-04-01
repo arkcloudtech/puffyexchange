@@ -22,6 +22,7 @@ const GoToHubTask = require('../models/gotohubtask');
 const OrderTask = require('../models/ordertask');
 const Product = require('../models/product');
 const Order = require('../models/order');
+const OrderProduct = require('../models/orderProducts');
 const Customer = require('../models/customer');
 const Message = require('../models/message');
 const InventoryExchangeContract = require('../models/inventoryexchangecontract');
@@ -91,18 +92,32 @@ const DispatcherType = new GraphQLObjectType({
     name: 'Dispatcher',
     fields: () => ({
         id: { type: GraphQLID },
-        orders: { type: GraphQLString },
-        drivers: { 
-            type: new GraphQLList(DriverType), 
-            resolve(parent, args){
-                return Driver.find({ authorId: parent.id });
-            }
-        },
-        dispatcher: { type: GraphQLString },
         user: {
             type: UserType,
             resolve(parent, args) {
-                return User.findById(parent.userId);
+                return User.findById( parent.userId );
+            }
+        },
+        orders: { 
+            type: new GraphQLList(OrderType), 
+            resolve(parent, args){
+                Order.find({})
+                    .where('_id')
+                    .in(deliveries.find({ 
+                        dispatcherId: mongoose.Types.ObjectId(parent.id) 
+                    }))
+                    .exec();
+            }
+        },
+        drivers: { 
+            type: new GraphQLList(DriverType), 
+            resolve(parent, args){
+                Driver.find({})
+                    .where('_id')
+                    .in(deliveries.find({ 
+                        dispatcherId: mongoose.Types.ObjectId({ dispatcherId: parent.id }) 
+                    })) 
+                    .exec();
             }
         }
     })
@@ -217,12 +232,26 @@ const OrderType = new GraphQLObjectType({
     name: 'Order',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
         deliveries: {
             type: new GraphQLList(DeliveryType),
             resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
+                let deliveries = Delivery.find({
+                    '_id': { $in: Delivery.find({ orderId: parent.id }) }
+                }, function(err, docs){
+                     console.log(docs);
+                });
+                return deliveries;
+            }
+        },
+        products: {
+            type: new GraphQLList(ProductType),
+            resolve(parent, args) {
+                let products = Product.find({
+                    'productId': { $in: OrderProduct.find({ orderId: parent.id }) }
+                }, function(err, docs){
+                     console.log(docs);
+                });
+                return products;
             }
         },
     })
@@ -277,19 +306,9 @@ const UserType = new GraphQLObjectType({
     name: 'User',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { 
-            type: GraphQLString,
-            resolve(parent, args) {
-                return User.findById(parent.authorId).name;
-            }
-        },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
-            resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
-            }
-        },
+        name: { type: GraphQLString },
+        phone: { type: GraphQLString },
+        isActive: { type: GraphQLBoolean }
     })
 });
 
@@ -410,11 +429,7 @@ const RootQuery = new GraphQLObjectType({
         },
         user: {
             type: UserType,
-            args: { 
-                id: { type: GraphQLID },
-                phone: { type: GraphQLString },
-                isActive: { type: GraphQLBoolean}
-            },
+            args: { id: { type: GraphQLID } },
             resolve(parent, args) {
                 // code to get deliveries
                 //return _.find(deliveries, { id: args.id });
@@ -726,6 +741,38 @@ const Mutation = new GraphQLObjectType({
                 return user.save();
             }
         },
+        assignDelivery: {
+            type: DeliveryType,
+            args: {
+                driverId: { type: GraphQLID },
+                orderId: { type: GraphQLID }
+            },
+            resolve(parent, args){
+                let delivery = new Delivery({
+                    driverId: args.driverId,
+                    location: args.location
+                });
+                return delivery.save();
+            }
+        },/*
+        signInventoryExchangeContract:  {
+            type: InventoryExchangeContractType,
+            args: {
+                inventoryExchangeTaskId: { GraphQLID },                
+                driverId: { type: GraphQLID },
+                signature: { type: GraphQLString }
+            }, 
+            resolve(parent, args) {
+                let inventoryExchangeContract = new InventoryExchangeContract({
+                    inventoryExchangeTaskId: args.inventoryExchangeTaskId,
+                    signatureA: args.signature,
+                    signatureB: args.signature,
+                    recipientId: driverId,
+                    valid: true
+                });
+                return inventoryExchangeContract.save(); 
+            }
+        }*/
     }
 });
 

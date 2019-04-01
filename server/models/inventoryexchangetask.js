@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 
 const inventoryExchangeTaskSchema = new Schema({
     driverTaskId: String,
-    signature: String,
     otherDriverId: String
 });
 

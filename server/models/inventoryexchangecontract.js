@@ -3,9 +3,11 @@ const Schema = mongoose.Schema;
 
 const inventoryExchangeContractSchema = new Schema({
     valid: Boolean,
-    inventoryExchangeId: String,
+    inventoryExchangeTaskId: String,
     senderId: String,
-    recipientId: String
+    recipientId: String,
+    signatureA: String,
+    signatureB: String
 });
 
 module.exports = mongoose.model("InventoryExchangeContract", inventoryExchangeContractSchema);
