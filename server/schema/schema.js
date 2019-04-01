@@ -8,7 +8,8 @@ const {
     GraphQLFloat, 
     GraphQLInt, 
     GraphQLList, 
-    GraphQLNonNull 
+    GraphQLNonNull,
+    GraphQLInputObjectType
 } = graphql;
 const _ = require('lodash');
 
@@ -45,6 +46,38 @@ var drivers = [
     { id: "4", name: "driver 4 name", location: "33.88321 -117.00399", deliveryId: "2" }
 ];
 
+const LocationType = new GraphQLObjectType({
+    name: 'Location',
+    fields: () => ({
+        coordinate: { type: CoordinateType },
+        address: { type: GraphQLString }
+    })
+});
+
+const LocationInputType = new GraphQLInputObjectType({
+    name: 'LocationInput',
+    fields: () => ({
+        coordinate: { type: CoordinateInputType },
+        address: { type: GraphQLString }
+    })
+});
+
+const CoordinateType = new GraphQLObjectType({
+    name: 'Coordinate',
+    fields: () => ({
+        lon: { type: GraphQLFloat },
+        lat: { type: GraphQLFloat }
+    })
+});
+
+const CoordinateInputType = new GraphQLInputObjectType({
+    name: 'CoordinateInput',
+    fields: () => ({
+        lon: { type: GraphQLFloat },
+        lat: { type: GraphQLFloat }
+    })
+});
+
 const CustomerType = new GraphQLObjectType({
     name: 'Customer',
     fields: () => ({
@@ -72,7 +105,7 @@ const DeliveryType = new GraphQLObjectType({
                 return Order.findById(parent.orderId);
             }
         },
-        deliveryLocation: { type: GraphQLString },
+        deliveryLocation: { type: LocationType },
         dispatcher: {
             type: DispatcherType,
             resolve(parent, args){
@@ -98,6 +131,7 @@ const DispatcherType = new GraphQLObjectType({
                 return User.findById( parent.userId );
             }
         },
+        location: { type: LocationType },
         orders: { 
             type: new GraphQLList(OrderType), 
             resolve(parent, args){
@@ -128,7 +162,7 @@ const DriverType = new GraphQLObjectType({
     fields: () => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
-        location: { type: GraphQLString },
+        location: { type: LocationType },
         deliveries: {
             type: new GraphQLList(DeliveryType),
             resolve(parent, args) {
@@ -142,14 +176,8 @@ const DriverTaskType = new GraphQLObjectType({
     name: 'DriverTask',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
-            resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
-            }
-        },
+        location: { type: LocationType },
+        taskNum: { type: GraphQLInt }
     })
 });
 
@@ -157,14 +185,12 @@ const GoToHubTaskType = new GraphQLObjectType({
     name: 'GoToHubTask',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
+        task: { 
+            type: DriverTaskType,
             resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
+                return DriverTask.findById(parent.driverTaskId);
             }
-        },
+        }
     })
 });
 
@@ -172,14 +198,10 @@ const InventoryExchangeContractType = new GraphQLObjectType({
     name: 'InventoryExchangeContract',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
-            resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
-            }
-        },
+        senderId: { type: GraphQLID },
+        recipientId: { type: GraphQLID },
+        signatureA: { type: GraphQLString },
+        signatureB: { type: GraphQLString }
     })
 });
 
@@ -187,14 +209,18 @@ const InventoryExchangeTaskType = new GraphQLObjectType({
     name: 'InventoryExchange',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
+        task: { 
+            type: DriverTaskType,
             resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
+                return DriverTask.findById(parent.driverTaskId);
             }
         },
+        otherDriver: { 
+            type: DriverType,
+            resolve(parent, args){
+                return Driver.findById(parent.otherDriverId);
+            }
+        }
     })
 });
 
@@ -202,12 +228,13 @@ const MessageType = new GraphQLObjectType({
     name: 'Message',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
+        text: { type: GraphQLString },
+        time: { type: GraphQLString },
+        isRead: { type: GraphQLBoolean },
+        messageOwner: {
+            type: UserType,
             resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
+                return Users.findById(parent.messageOwnerId);
             }
         },
     })
@@ -217,14 +244,19 @@ const MessageUserType = new GraphQLObjectType({
     name: 'MessageUser',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
+        user: {
+            type: UserType,
             resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
+                return Users.findById(parent.messageUserId);
             }
         },
+        messageUser: {
+            type: UserType,
+            resolve(parent, args) {
+                return Users.findById(parent.messageUserId);
+            }
+        },
+        profileId: { type: GraphQLString }
     })
 });
 
@@ -232,6 +264,12 @@ const OrderType = new GraphQLObjectType({
     name: 'Order',
     fields: () => ({
         id: { type: GraphQLID },
+        customer: { 
+            type: CustomerType,
+            resolve(parent, args){
+                return Customer.findById( parent.customerId );
+            }
+        },
         deliveries: {
             type: new GraphQLList(DeliveryType),
             resolve(parent, args) {
@@ -261,12 +299,11 @@ const OrderTaskType = new GraphQLObjectType({
     name: 'OrderTask',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
+        summary: { type: GraphQLString },
+        task: { 
+            type: DriverTaskType,
             resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
+                return DriverTask.findById(parent.driverTaskId);
             }
         },
     })
@@ -277,13 +314,9 @@ const ProductType = new GraphQLObjectType({
     fields: () => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
-            resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
-            }
-        },
+        description: { type: GraphQLString },
+        price: { type: GraphQLFloat },
+        imageUrl: { type: GraphQLString },
     })
 });
 
@@ -291,14 +324,14 @@ const ProfileType = new GraphQLObjectType({
     name: 'Profile',
     fields: () => ({
         id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        location: { type: GraphQLString },
-        deliveries: {
-            type: new GraphQLList(DeliveryType),
-            resolve(parent, args) {
-                return _.filter(deliveries, { driverId: parent.id })
+        user: { 
+            type: UserType,
+            resolve(parent, args){
+                return User.findById(parent.userId);
             }
         },
+        description: { type: GraphQLString },
+        imageUrl: { type: GraphQLString }
     })
 });
 
@@ -319,210 +352,195 @@ const RootQuery = new GraphQLObjectType({
             type: CustomerType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return Customer.findById(args.id);
             }
         },
         delivery: {
             type: DeliveryType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return delivery.findById(args.id);
             }
         },
         dispatcher: {
             type: DispatcherType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return Dispatcher.findById(args.id);
             }
         },
         driver: {
             type: DriverType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get drivers
-                //return _.find(drivers, { id: args.id });
+                return Driver.findById(args.id);
             }
         },
         drivertask: {
             type: DriverTaskType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return DriverTask.findById(args.id);
             }
         },
-        gotohub: {
+        gotohubtask: {
             type: GoToHubTaskType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return GoToHubTask.findById(args.id);
             }
         },
         inventoryexchangecontract: {
             type: InventoryExchangeContractType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return InventoryExchangeContract.findById(args.id);
             }
         },
         inventoryexchangetask: {
             type: InventoryExchangeTaskType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return InventoryExchangeTask.findById(args.id);
             }
         },
         message: {
             type: MessageType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return Message.findById(args.id);
             }
         },
         messageuser: {
             type: MessageUserType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return MessageUser.findById(args.id);
             }
         },
         order: {
             type: OrderType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return Order.findById(args.id);
             }
         },
         ordertask: {
             type: OrderTaskType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return OrderTask.findById(args.id);
             }
         },
         product: {
             type: ProductType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return Product.findById(args.id);
             }
         },
         profile: {
             type: ProfileType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return Profile.findById(args.id);
             }
         },
         user: {
             type: UserType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // code to get deliveries
-                //return _.find(deliveries, { id: args.id });
+                return User.findById(args.id);
             }
         },
         customers: {
             type: new GraphQLList(CustomerType),
             resolve(parent, args) {
-                //return drivers
+                return Customer.find({});
             }
         },
         deliveries: {
             type: new GraphQLList(DeliveryType),
             resolve(parent, args) {
-                //return drivers
+                return Delivery.find({});
             }
         },
         dispatchers: {
             type: new GraphQLList(DispatcherType),
             resolve(parent, args) {
-                //return dispatchers
+                return Dispatcher.find({});
             }
         },
         drivers: {
             type: new GraphQLList(DriverType),
             resolve(parent, args) {
-                //return drivers
+                return Driver.find({});
             }
         },
         drivertasks: {
             type: new GraphQLList(DriverTaskType),
             resolve(parent, args) {
-                //return drivertasks
+                return DriverTask.find({});
             }
         },
         gotohubtasks: {
             type: new GraphQLList(GoToHubTaskType),
             resolve(parent, args) {
-                //return gotohubtasks
+                return GoToHubTask.find({});
             }
         },
         inventoryexchangecontracts: {
             type: new GraphQLList(InventoryExchangeContractType),
             resolve(parent, args) {
-                //return inventoryexchangecontracts
+                return InventoryExchangeContract.find({});
             }
         },
-        inventoryexchanges: {
+        inventoryexchangetasks: {
             type: new GraphQLList(InventoryExchangeTaskType),
             resolve(parent, args) {
-                //return inventoryexchanges
+                return InventoryExchangeTask.find({});
             }
         },
         messages: {
             type: new GraphQLList(MessageType),
             resolve(parent, args) {
-                //return message
+                return Message.find({});
             }
         },
         messageusers: {
             type: new GraphQLList(MessageUserType),
             resolve(parent, args) {
-                //return drivers
+                return MessageUser.find({});
             }
         },
         orders: {
             type: new GraphQLList(OrderType),
             resolve(parent, args) {
-                //return drivers
+                return Order.find({});
             }
         },
         ordertask: {
             type: new GraphQLList(OrderTaskType),
             resolve(parent, args) {
-                //return drivers
+                return OrderTask.find({});
             }
         },
         products: {
             type: new GraphQLList(ProductType),
             resolve(parent, args) {
-                //return drivers
+                return Product.find({});
             }
         },
         profiles: {
             type: new GraphQLList(ProfileType),
             resolve(parent, args) {
-                //return drivers
+                return Profile.find({});
             }
         },
         users: {
             type: new GraphQLList(UserType),
             resolve(parent, args) {
-                //return deliveries
+                return User.find({});
             }
         }
     }
@@ -535,12 +553,13 @@ const Mutation = new GraphQLObjectType({
             type: CustomerType,
             args: {
                 name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                phone: { type: new GraphQLNonNull(GraphQLString) },
+                userId: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let customer = new Customer({
                     name: args.name,
-                    location: args.location
+                    phone: args.phone
                 });
                 return customer.save();
             }
@@ -548,13 +567,13 @@ const Mutation = new GraphQLObjectType({
         addDelivery: {
             type: DeliveryType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                orderId: { type: new GraphQLNonNull(GraphQLString) },
+                deliveryLocation: { type: new GraphQLNonNull(LocationInputType) }
             },
             resolve(parent, args) {
                 let delivery = new Delivery({
-                    name: args.name,
-                    location: args.location
+                    orderId: args.orderId,
+                    deliveryLocation: args.deliveryLocation
                 });
                 return delivery.save();
             }
@@ -562,13 +581,11 @@ const Mutation = new GraphQLObjectType({
         addDispatcher: {
             type: DispatcherType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                userId: { type: new GraphQLNonNull(GraphQLString) }
             },
             resolve(parent, args) {
                 let dispatcher = new Dispatcher({
-                    name: args.name,
-                    location: args.location
+                    userId: args.userId
                 });
                 return dispatcher.save();
             }
@@ -576,12 +593,12 @@ const Mutation = new GraphQLObjectType({
         addDriver: {
             type: DriverType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                userId: { type: new GraphQLNonNull(GraphQLString) },
+                location: { type: new GraphQLNonNull(LocationInputType) }
             },
             resolve(parent, args) {
                 let driver = new Driver({
-                    name: args.name,
+                    userId: args.userId,
                     location: args.location
                 });
                 return driver.save();
@@ -590,8 +607,7 @@ const Mutation = new GraphQLObjectType({
         addDriverTask: {
             type: DriverTaskType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let driverTask = new DriverTask({
@@ -604,8 +620,7 @@ const Mutation = new GraphQLObjectType({
         addGoToHubTask: {
             type: GoToHubTaskType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let goToHubTask = new GoToHubTask({
@@ -618,8 +633,7 @@ const Mutation = new GraphQLObjectType({
         addInventoryExchangeContract: {
             type: InventoryExchangeContractType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let inventoryExchangeContract = new InventoryExchangeContract({
@@ -632,8 +646,7 @@ const Mutation = new GraphQLObjectType({
         addInventoryExchangeTask: {
             type: InventoryExchangeTaskType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let inventoryExchangeTask = new InventoryExchangeTask({
@@ -646,13 +659,17 @@ const Mutation = new GraphQLObjectType({
         addMessage: {
             type: MessageType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                userId: { type: new GraphQLNonNull(GraphQLString) },
+                imageUrl: { type: GraphQLString },
+                time: { type: new GraphQLNonNull(GraphQLString) },
+                text: { type: GraphQLString },
             },
             resolve(parent, args) {
                 let message = new Message({
-                    name: args.name,
-                    location: args.location
+                    userId: args.userId,
+                    imageUrl: args.location,
+                    time: args.time,
+                    text: args.text
                 });
                 return message.save();
             }
@@ -660,8 +677,7 @@ const Mutation = new GraphQLObjectType({
         addMessageUser: {
             type: MessageUserType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let messageUser = new MessageUser({
@@ -674,8 +690,7 @@ const Mutation = new GraphQLObjectType({
         addOrder: {
             type: OrderType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let order = new Order({
@@ -688,8 +703,7 @@ const Mutation = new GraphQLObjectType({
         addOrderTask: {
             type: OrderTaskType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let orderTask = new OrderTask({
@@ -702,8 +716,7 @@ const Mutation = new GraphQLObjectType({
         addProduct: {
             type: ProductType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let product = new Product({
@@ -716,8 +729,7 @@ const Mutation = new GraphQLObjectType({
         addProfile: {
             type: ProfileType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let profile = new Profile({
@@ -730,8 +742,7 @@ const Mutation = new GraphQLObjectType({
         addUser: {
             type: UserType,
             args: {
-                name: { type: new GraphQLNonNull(GraphQLString) },
-                location: { type: new GraphQLNonNull(GraphQLString) }
+                info: { type: GraphQLString }
             },
             resolve(parent, args) {
                 let user = new User({

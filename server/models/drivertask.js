@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const driverTaskSchema = new Schema({
-    taskId: String,
-    location: String
+    location: Schema.Types.Mixed
 });
 
 module.exports = mongoose.model("DriverTask", driverTaskSchema);
