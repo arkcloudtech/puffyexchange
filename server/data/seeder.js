@@ -376,14 +376,31 @@ mongoose.connection.once('open', () => {
             }
         });
     }
+
+    console.log('seeding orders');
+    for(var i = 0, dl = orders.length; i < dl; i++){
+        let order = new Order({
+            name: drivers[i].user.name,
+            email: drivers[i].user.email,
+            phone: getRandomPhone()
+        });
+        var j = i;
+        user.save((err, item, numAffected)=>{
+            var k = j;
+            if(!err) {
+                let driver = new Driver({
+                    userId: item.id,
+                    isApproved: drivers[k].isApproved
+                });
+                driver.save((e, i, n)=>{
+                    if(e){
+                        console.log('issue adding driver');
+                    }
+                });
+            } else {
+                console.log('issues adding user')
+            }
+        });
+    }
 });
 
-/*
-module.exports = {
-    PuffyWorld: {
-        deliveries: buildPuffyWorld(),
-        DeliveryStatus: DeliveryStatus,
-        UserType: UserType
-    }
-}
-*/
