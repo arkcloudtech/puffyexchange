@@ -14,11 +14,16 @@ var fs = require("fs");
 fs.readFile("./locations.csv", "utf-8", function(err, buf) {
     let rows = buf.split("\n");
     for(var i = 0; i < rows.length; i++){
-        
+    var  location =  {
+            latDeg: rows.split(',')[0].replace('"','').replace('"',''),
+            lat: rows.split(',')[1].replace('"','').replace('"',''),
+            lonDeg: rows.split(',')[2].replace('"','').replace('"',''),
+            lon: rows.split(',')[3].replace('"','').replace('"',''),
+            bearing: rows.split(',')[2].replace('"','').replace('"',''),
+            dist: rows.split(',')[3].replace('"','').replace('"','')
+        }
     }
 });
-
-
 
 var writeDataToDB = false;
 

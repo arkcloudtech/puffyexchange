@@ -3813,6 +3813,14 @@ for(var i = 0, sl = schema.__schema.types.length; i < sl; i++) {
     let type = schema.__schema.types[i];
     if(type.kind === "OBJECT" && type.name[0] != '_' && type.name != 'RootQueryType' && type.name != 'Mutation') {
         console.dir(type);
-        console.log(`function conditionallyCreate${type.name}Table(connection) `)
+        console.log(`
+        function conditionallyCreate${type.name}Table(connection) {
+          const createTableSQL = 'CREATE TABLE IF NOT EXISTS ${type.name.toLowerCase()} (`);
+        for(var j = 0, tfl = type.fields.length; j < tfl; j++){
+          console.log('\t\t\t' + type.fields[j].name + '\t' + 'SOME-TYPE' + (j == tfl.length - 1 ? '': ','));
+        }
+        console.log('\t\t\tPRIMARY KEY(id));');
+        console.log('\t\t  return executeSQL(connection, createTableSQL)');
+        console.log('\t\t}')
     }
 }
