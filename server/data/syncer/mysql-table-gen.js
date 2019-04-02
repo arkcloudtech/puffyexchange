@@ -3811,16 +3811,34 @@ var schema = {
 
 for(var i = 0, sl = schema.__schema.types.length; i < sl; i++) {
     let type = schema.__schema.types[i];
+    let idType = 'VARCHAR(64)';
+    let stringType = 'VARCHAR(255)';
+    let keyRelations = [];
     if(type.kind === "OBJECT" && type.name[0] != '_' && type.name != 'RootQueryType' && type.name != 'Mutation') {
         console.dir(type);
         console.log(`
         function conditionallyCreate${type.name}Table(connection) {
-          const createTableSQL = 'CREATE TABLE IF NOT EXISTS ${type.name.toLowerCase()} (`);
+          const createTableSQL = 'CREATE TABLE IF NOT EXISTS ${type.name.toLowerCase()} (
+            id        \t${idType} NOT NULL,`);
         for(var j = 0, tfl = type.fields.length; j < tfl; j++){
-          console.log('\t\t\t' + type.fields[j].name + '\t' + 'SOME-TYPE' + (j == tfl.length - 1 ? '': ','));
+          let field = type.fields[j];
+          if(field.type.name === "ID"){
+
+          } else {
+            field.type.name = field.type.name === "String" ? stringType : field.type.name;
+            let fieldName = field.name + (field.type.kind === "OBJECT" ? 'Id': '');
+            if(field.type.kind === "OBJECT") {
+              keyRelations.push( { table: field.name.toLowerCase() + 's',idName: fieldName } )
+            }
+            console.log('\t\t\t' + fieldName + '\t\t' + (field.type.kind === "OBJECT" ? idType : field.type.name) + (j == tfl.length - 1 ? '': ','));
+          }
         }
-        console.log('\t\t\tPRIMARY KEY(id));');
-        console.log('\t\t  return executeSQL(connection, createTableSQL)');
+        let krString = keyRelations.length > 0 ? '\r\n' : '';
+        for(var kr = 0, krl = keyRelations.length; kr < krl; kr++){
+          krString += `\t\t\tFOREIGN KEY(${keyRelations[kr].idName}) REFERENCES ${keyRelations[kr].table}(id)` + (kr == krl - 1 ? '': ',\r\n');
+        }
+        console.log('\t\t\tPRIMARY KEY(id)' + krString + ")';");
+        console.log('\t\t  return executeSQL(connection, createTableSQL);');
         console.log('\t\t}')
     }
 }
