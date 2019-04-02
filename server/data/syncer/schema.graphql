@@ -1,0 +1,215 @@
+schema {
+  query: RootQueryType
+  mutation: Mutation
+}
+
+type Coordinate {
+  lon: Float
+  lat: Float
+}
+
+input CoordinateInput {
+  lon: Float
+  lat: Float
+}
+
+type Customer {
+  id: ID
+  name: String
+  phone: String
+  idUrl: String
+  user: User
+}
+
+type Delivery {
+  id: ID
+  summary: String
+  order: Order
+  deliveryLocation: Location
+  dispatcher: Dispatcher
+  driver: Driver
+}
+
+type Dispatcher {
+  id: ID
+  user: User
+  location: Location
+  orders: [Order]
+  drivers: [Driver]
+}
+
+type Driver {
+  id: ID
+  name: String
+  location: Location
+  deliveries: [Delivery]
+  isApproved: Boolean
+}
+
+type DriverTask {
+  id: ID
+  location: Location
+  taskNum: Int
+}
+
+type GoToHubTask {
+  id: ID
+  task: DriverTask
+}
+
+type InventoryExchange {
+  id: ID
+  task: DriverTask
+  otherDriver: Driver
+}
+
+type InventoryExchangeContract {
+  id: ID
+  senderId: ID
+  recipientId: ID
+  signatureA: String
+  signatureB: String
+}
+
+type Location {
+  coordinate: Coordinate
+  address: String
+}
+
+input LocationInput {
+  coordinate: CoordinateInput
+  address: String
+}
+
+type Message {
+  id: ID
+  text: String
+  time: String
+  isRead: Boolean
+  messageOwner: User
+}
+
+type MessageUser {
+  id: ID
+  user: User
+  messageUser: User
+  profileId: String
+}
+
+type Mutation {
+  addCustomer(name: String!, phone: String!, userId: String): Customer
+  addDelivery(orderId: String!, deliveryLocation: LocationInput!): Delivery
+  addDispatcher(userId: String!): Dispatcher
+  addDriver(userId: String!, location: LocationInput!): Driver
+  addDriverTask(info: String): DriverTask
+  addGoToHubTask(info: String): GoToHubTask
+  addInventoryExchangeContract(info: String): InventoryExchangeContract
+  addInventoryExchangeTask(info: String): InventoryExchange
+  addMessage(userId: String!, imageUrl: String, time: String!, text: String): Message
+  addMessageUser(info: String): MessageUser
+  addOrder(info: String): Order
+  addOrderTask(info: String): OrderTask
+  addProduct(info: String): Product
+  addProfile(info: String): Profile
+  addUser(info: String): User
+  assignDelivery(driverId: ID, orderId: ID): Delivery
+  removeCustomer(id: String): Customer
+  removeDelivery(id: String): Delivery
+  removeDispatcher(id: String): Dispatcher
+  removeDriver(id: String): Driver
+  removeDriverTask(id: String): DriverTask
+  removeGoToHubTask(id: String): GoToHubTask
+  removeInventoryExchangeContract(id: String): InventoryExchangeContract
+  removeInventoryExchangeTask(id: String): InventoryExchange
+  removeMessage(id: String): Message
+  removeMessageUser(id: String): MessageUser
+  removeOrder(id: String): Order
+  removeOrderTask(id: String): OrderTask
+  removeProduct(id: String): Product
+  removeProfile(id: String): Profile
+  removeUser(id: String): User
+  updateCustomer(id: String): Customer
+  updateDelivery(id: String): Delivery
+  updateDispatcher(id: String): Dispatcher
+  updateDriver(id: String): Driver
+  updateDriverTask(id: String): DriverTask
+  updateGoToHubTask(id: String): GoToHubTask
+  updateInventoryExchangeContract(id: String): InventoryExchangeContract
+  updateInventoryExchangeTask(id: String): InventoryExchange
+  updateMessage(id: String): Message
+  updateMessageUser(id: String): MessageUser
+  updateOrder(id: String): Order
+  updateOrderTask(id: String): OrderTask
+  updateProduct(id: String): Product
+  updateProfile(id: String): Profile
+  updateUser(id: String): User
+}
+
+type Order {
+  id: ID
+  customer: Customer
+  deliveries: [Delivery]
+  products: [Product]
+}
+
+type OrderTask {
+  id: ID
+  summary: String
+  task: DriverTask
+}
+
+type Product {
+  id: ID
+  name: String
+  description: String
+  price: Float
+  imageUrl: String
+}
+
+type Profile {
+  id: ID
+  user: User
+  description: String
+  imageUrl: String
+}
+
+type RootQueryType {
+  customer(id: ID): Customer
+  delivery(id: ID): Delivery
+  dispatcher(id: ID): Dispatcher
+  driver(id: ID): Driver
+  drivertask(id: ID): DriverTask
+  gotohubtask(id: ID): GoToHubTask
+  inventoryexchangecontract(id: ID): InventoryExchangeContract
+  inventoryexchangetask(id: ID): InventoryExchange
+  message(id: ID): Message
+  messageuser(id: ID): MessageUser
+  order(id: ID): Order
+  ordertask: [OrderTask]
+  product(id: ID): Product
+  profile(id: ID): Profile
+  user(id: ID): User
+  customers: [Customer]
+  deliveries: [Delivery]
+  dispatchers: [Dispatcher]
+  drivers(isApproved: Boolean): [Driver]
+  drivertasks: [DriverTask]
+  gotohubtasks: [GoToHubTask]
+  inventoryexchangecontracts: [InventoryExchangeContract]
+  inventoryexchangetasks: [InventoryExchange]
+  messages: [Message]
+  messageusers: [MessageUser]
+  orders: [Order]
+  products: [Product]
+  profiles: [Profile]
+  users: [User]
+}
+
+type User {
+  id: ID
+  name: String
+  email: String
+  phone: String
+  isActive: Boolean
+}
+

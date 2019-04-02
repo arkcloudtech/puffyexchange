@@ -1,0 +1,41 @@
+{
+  drivers(isApproved: true) {
+    id
+    name
+    location {
+      coordinate {
+        lat
+        lon
+      }
+      address
+    }
+    deliveries {
+      id
+      summary
+      order {
+        id
+        customer {
+          id
+          name
+          phone
+          idUrl
+          user {
+            id
+            name
+            email
+            phone
+            isActive
+          }
+        }
+        products {
+          id
+          name
+          description
+          price
+          imageUrl
+        }
+      }
+    }
+    isApproved
+  }
+}

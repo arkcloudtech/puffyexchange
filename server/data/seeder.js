@@ -9,6 +9,19 @@ const config = {
     HubCount: { min: 3, max: 20 }
 }
 
+// get mapped locations
+var fs = require("fs");
+fs.readFile("./locations.csv", "utf-8", function(err, buf) {
+    let rows = buf.split("\n");
+    for(var i = 0; i < rows.length; i++){
+        
+    }
+});
+
+
+
+var writeDataToDB = false;
+
 // bring in models
 const User = require('../models/user');
 const Driver = require('../models/driver');
@@ -351,6 +364,7 @@ mongoose.connection.once('open', () => {
         orders: orders
     });
 
+if(writeDataToDB) {
     console.log('seeding users and drivers');
     for(var i = 0, dl = drivers.length; i < dl; i++){
         let user = new User({
@@ -402,5 +416,5 @@ mongoose.connection.once('open', () => {
             }
         });
     }
-});
+}});
 
