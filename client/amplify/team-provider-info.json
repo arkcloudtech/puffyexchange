@@ -1,0 +1,14 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "puffy-dispatch-20190402154449-authRole",
+            "UnauthRoleArn": "arn:aws:iam::988358735984:role/puffy-dispatch-20190402154449-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::988358735984:role/puffy-dispatch-20190402154449-authRole",
+            "Region": "us-west-2",
+            "DeploymentBucketName": "puffy-dispatch-20190402154449-deployment",
+            "UnauthRoleName": "puffy-dispatch-20190402154449-unauthRole",
+            "StackName": "puffy-dispatch-20190402154449",
+            "StackId": "arn:aws:cloudformation:us-west-2:988358735984:stack/puffy-dispatch-20190402154449/ec44e9c0-5598-11e9-8400-0a8dbb6069d0"
+        }
+    }
+}

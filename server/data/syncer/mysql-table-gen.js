@@ -3809,17 +3809,26 @@ var schema = {
     }
 }
 
-for(var i = 0, sl = schema.__schema.types.length; i < sl; i++) {
+
+
+
+
+function genMySQLTable() {
+  var tableGenScripts = [];
+  let funcNames = [];
+  for(var i = 0, sl = schema.__schema.types.length; i < sl; i++) {
     let type = schema.__schema.types[i];
     let idType = 'VARCHAR(64)';
     let stringType = 'VARCHAR(255)';
     let keyRelations = [];
+    let genString = "";
     if(type.kind === "OBJECT" && type.name[0] != '_' && type.name != 'RootQueryType' && type.name != 'Mutation') {
-        console.dir(type);
-        console.log(`
-        function conditionallyCreate${type.name}Table(connection) {
-          const createTableSQL = 'CREATE TABLE IF NOT EXISTS ${type.name.toLowerCase()} (
-            id        \t${idType} NOT NULL,`);
+        let funcName = `conditionallyCreate${type.name}Table(connection)`;
+        funcNames.push(funcName);
+        genString += `
+        function ${funcName} {
+          const createTableSQL = \`CREATE TABLE IF NOT EXISTS ${type.name.toLowerCase()} (
+          \tid        \t${idType} NOT NULL,\r\n`;
         for(var j = 0, tfl = type.fields.length; j < tfl; j++){
           let field = type.fields[j];
           if(field.type.name === "ID"){
@@ -3830,51 +3839,84 @@ for(var i = 0, sl = schema.__schema.types.length; i < sl; i++) {
             if(field.type.kind === "OBJECT") {
               keyRelations.push( { table: field.name.toLowerCase() + 's',idName: fieldName } )
             }
-            console.log('\t\t\t' + fieldName + '\t\t' + (field.type.kind === "OBJECT" ? idType : field.type.name) + (j == tfl.length - 1 ? '': ','));
+            genString += '\t\t\t' + fieldName + '\t\t' + (field.type.kind === "OBJECT" ? idType : field.type.name) + (j == tfl.length - 1 ? '': ',') + '\r\n';
           }
         }
         let krString = keyRelations.length > 0 ? '\r\n' : '';
         for(var kr = 0, krl = keyRelations.length; kr < krl; kr++){
           krString += `\t\t\tFOREIGN KEY(${keyRelations[kr].idName}) REFERENCES ${keyRelations[kr].table}(id)` + (kr == krl - 1 ? '': ',\r\n');
         }
-        console.log('\t\t\tPRIMARY KEY(id)' + (krString.length > 0 ? "," : "") + krString + ")';");
-        console.log('\t\t  return executeSQL(connection, createTableSQL);');
-        console.log('\t\t}')
+        genString += '\t\t\tPRIMARY KEY(id)' + (krString.length > 0 ? "," : "") + krString + ")\`;" + '\r\n';
+        genString += '\t\treturn executeSQL(connection, createTableSQL);' + '\r\n';
+        genString += '\t  }' + '\r\n';
+        console.log(genString);
+        tableGenScripts.push(genString);
     }
-}
-
-
-for(var i = 0, sl = schema.__schema.types.length; i < sl; i++) {
-  let type = schema.__schema.types[i];
-  let idType = 'VARCHAR(64)';
-  let stringType = 'VARCHAR(255)';
-  let keyRelations = [];
-  let genString = "";
-  if(type.kind === "OBJECT" && type.name[0] != '_' && type.name != 'RootQueryType' && type.name != 'Mutation') {
-      genString += `
-      function conditionallyCreate${type.name}Table(connection) {
-        const createTableSQL = 'CREATE TABLE IF NOT EXISTS ${type.name.toLowerCase()} (
-        \tid        \t${idType} NOT NULL,\r\n`;
-      for(var j = 0, tfl = type.fields.length; j < tfl; j++){
-        let field = type.fields[j];
-        if(field.type.name === "ID"){
-
-        } else {
-          field.type.name = field.type.name === "String" ? stringType : field.type.name;
-          let fieldName = field.name + (field.type.kind === "OBJECT" ? 'Id': '');
-          if(field.type.kind === "OBJECT") {
-            keyRelations.push( { table: field.name.toLowerCase() + 's',idName: fieldName } )
-          }
-          genString += '\t\t\t' + fieldName + '\t\t' + (field.type.kind === "OBJECT" ? idType : field.type.name) + (j == tfl.length - 1 ? '': ',') + '\r\n';
-        }
-      }
-      let krString = keyRelations.length > 0 ? '\r\n' : '';
-      for(var kr = 0, krl = keyRelations.length; kr < krl; kr++){
-        krString += `\t\t\tFOREIGN KEY(${keyRelations[kr].idName}) REFERENCES ${keyRelations[kr].table}(id)` + (kr == krl - 1 ? '': ',\r\n');
-      }
-      genString += '\t\t\tPRIMARY KEY(id)' + (krString.length > 0 ? "," : "") + krString + ")';" + '\r\n';
-      genString += '\t\treturn executeSQL(connection, createTableSQL);' + '\r\n';
-      genString += '\t  }' + '\r\n';
-      console.log(genString);
   }
+  return { scripts: tableGenScripts, funcs: funcNames };
 }
+
+console.dir(genMySQLTable() );
+
+/*
+conditionallyCreateCustomerTable(connection)
+conditionallyCreateUserTable(connection)
+conditionallyCreateDeliveryTable(connection)
+conditionallyCreateOrderTable(connection)
+conditionallyCreateProductTable(connection)
+conditionallyCreateLocationTable(connection)
+conditionallyCreateCoordinateTable(connection)
+conditionallyCreateDispatcherTable(connection)
+conditionallyCreateDriverTable(connection)
+conditionallyCreateDriverTaskTable(connection)
+conditionallyCreateGoToHubTaskTable(connection)
+conditionallyCreateInventoryExchangeContractTable(connection)
+conditionallyCreateInventoryExchangeTable(connection)
+conditionallyCreateMessageTable(connection)
+conditionallyCreateMessageUserTable(connection)
+conditionallyCreateOrderTaskTable(connection)
+conditionallyCreateProfileTable(connection)
+*/
+
+
+
+
+function genMyGraphQLSDL() {
+  var tableGenScripts = [];
+  for(var i = 0, sl = schema.__schema.types.length; i < sl; i++) {
+    let type = schema.__schema.types[i];
+    let idType = 'ID!';
+    let stringType = 'String';
+    let keyRelations = [];
+    let genString = "";
+    if(type.kind === "OBJECT" && type.name[0] != '_' && type.name != 'RootQueryType' && type.name != 'Mutation') {
+        let funcName = type.name
+        genString += `
+        type ${funcName} {\r\n`;
+        for(var j = 0, tfl = type.fields.length; j < tfl; j++){
+          let field = type.fields[j];
+          if(field.type.name === "ID"){
+
+          } else {
+            field.type.name = field.type.name === "String" ? stringType : field.type.name;
+            let fieldName = field.name + (field.type.kind === "OBJECT" ? '': '');
+            if(field.type.kind === "OBJECT") {
+              keyRelations.push( { table: field.name,idName: fieldName } )
+            }
+            genString += '\t\t\t' + fieldName + '\t\t' + (field.type.kind === "OBJECT" ? idType : field.type.name) + (j == tfl.length - 1 ? '': '') + '\r\n';
+          }
+        }
+        let krString = keyRelations.length > 0 ? '\r\n' : '';
+        for(var kr = 0, krl = keyRelations.length; kr < krl; kr++){
+          krString += `\t\t\tFOREIGN KEY(${keyRelations[kr].idName}) REFERENCES ${keyRelations[kr].table}(id)` + (kr == krl - 1 ? '': ',\r\n');
+        }
+        //genString += '\t\t\tPRIMARY KEY(id)' + (krString.length > 0 ? "," : "") + krString + ")\`;" + '\r\n';
+        //genString += '\t\treturn executeSQL(connection, createTableSQL);' + '\r\n';
+        genString += '\t  }' + '\r\n';
+        console.log(genString);
+        tableGenScripts.push(genString);
+    }
+  }
+  return { scripts: tableGenScripts };
+}
+genMyGraphQLSDL();

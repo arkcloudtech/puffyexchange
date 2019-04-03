@@ -1,0 +1,18 @@
+projects:
+  PuffyExchangeAPI:
+    schemaPath: src/graphql/schema.json
+    includes:
+      - src/graphql/**/*.js
+    excludes:
+      - ./amplify/**
+    extensions:
+      amplify:
+        graphQLApiId: jnn6nkmtnze6zehwbnl4jonjwe
+        codeGenTarget: javascript
+        generatedFileName: ''
+        docsFilePath: src/graphql
+        region: us-east-2
+        maxDepth: 4
+      endpoints:
+        prod: >-
+          https://jvdjsswf3jhhfmhxxhkjfnfzvy.appsync-api.us-east-2.amazonaws.com/graphql
