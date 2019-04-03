@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "seed": "node --inspect-brk ./data/seeder.js",
-        "sql": "node --inpsect-brk ./data/syncer/mysql-table-gen.js"
+        "sql": "node --inspect-brk ./data/syncer/mysql-table-gen.js"
     },
     "author": "",
     "license": "ISC",
