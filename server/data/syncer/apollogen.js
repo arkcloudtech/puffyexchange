@@ -1,1 +1,0 @@
-const Apollo = require('Apollo')
