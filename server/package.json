@@ -6,7 +6,9 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "seed": "node --inspect-brk ./data/seeder.js",
-        "sql": "node --inspect-brk ./data/syncer/mysql-table-gen.js"
+        "sql": "node --inspect-brk ./data/syncer/mysql-table-gen.js",
+        "sdl": "node --inspect-brk ./data/syncer/graphql-schema-gen.js",
+        "vtl": "node --inspect-brk ./data/syncer/vtl-resolver-gen.js"
     },
     "author": "",
     "license": "ISC",

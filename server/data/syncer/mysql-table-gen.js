@@ -23,8 +23,9 @@ function conditionallyCreatePostsTable(connection) {
   return executeSQL(connection, createTableSQL);
 }`
 
-var fs = require("fs");
-fs.readFile("./schema.json", "utf-8", function(err, buf) {
+var fs = require("fs"); 
+
+fs.readFile(__dirname + "/schema.json", "utf-8", function(err, buf) { 
   // set schema object from schema JSON file
   eval(`var schema = ${buf}`);
     function genMySQLTable() {
@@ -40,7 +41,7 @@ fs.readFile("./schema.json", "utf-8", function(err, buf) {
             let funcName = `conditionallyCreate${type.name}Table(connection)`;
             funcNames.push(funcName);
             genString += `
-            function ${funcName} {
+            function ${funcName} { 
               const createTableSQL = \`CREATE TABLE IF NOT EXISTS ${type.name.toLowerCase()} (
               \tid        \t${idType} NOT NULL,\r\n`;
             for(var j = 0, tfl = type.fields.length; j < tfl; j++){
@@ -69,10 +70,7 @@ fs.readFile("./schema.json", "utf-8", function(err, buf) {
       }
       return { scripts: tableGenScripts, funcs: funcNames };
     }
-    
-    console.dir(genMySQLTable() );
-    
-    
+  
     
     function genMyGraphQLSDL() {
       var tableGenScripts = [];
@@ -86,10 +84,11 @@ fs.readFile("./schema.json", "utf-8", function(err, buf) {
             let funcName = type.name
             genString += `
             type ${funcName} {\r\n`;
+            genString += '\t\t\tid\tID!\r\n';
             for(var j = 0, tfl = type.fields.length; j < tfl; j++){
               let field = type.fields[j];
-              if(field.type.name === "ID"){
-    
+              if(field.type.name === "ID" || field.type.name === "ID!"){
+                
               } else {
                 field.type.name = field.type.name === "String" ? stringType : field.type.name;
                 let fieldName = field.name + (field.type.kind === "OBJECT" ? '': '');
@@ -106,7 +105,9 @@ fs.readFile("./schema.json", "utf-8", function(err, buf) {
       }
       return { scripts: tableGenScripts };
     }
-    genMyGraphQLSDL();
+
+    console.dir(genMySQLTable());
+    console.dir(genMyGraphQLSDL());
 });
 
 
